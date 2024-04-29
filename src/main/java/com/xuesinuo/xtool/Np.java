@@ -452,6 +452,9 @@ public class Np<T> {
     private static Integer compareTo(Object obj1, Object obj2) {
         if (obj1 instanceof Comparable<?> && obj2 instanceof Comparable<?>) {
             Type objComparableGeneric1 = getComparableGeneric(obj1.getClass());
+            if(objComparableGeneric1 == null){
+                return null;
+            }
             Type objComparableGeneric2 = getComparableGeneric(obj2.getClass());
             if (objComparableGeneric1.equals(objComparableGeneric2)) {// Comparable泛型相同，可以比较
                 @SuppressWarnings("unchecked")
