@@ -2,6 +2,9 @@ package com.xuesinuo.xtool;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -451,35 +454,9 @@ public class Np<T> {
      */
     private static Integer compareTo(Object obj1, Object obj2) {
         if (obj1 instanceof Comparable<?> && obj2 instanceof Comparable<?>) {
-            Type objComparableGeneric1 = getComparableGeneric(obj1.getClass());
-            if(objComparableGeneric1 == null){
-                return null;
-            }
-            Type objComparableGeneric2 = getComparableGeneric(obj2.getClass());
-            if (objComparableGeneric1.equals(objComparableGeneric2)) {// Comparable泛型相同，可以比较
-                @SuppressWarnings("unchecked")
-                Comparable<Object> objComparable = (Comparable<Object>) obj1;
-                return objComparable.compareTo(obj2);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 获取Comparable的泛型类
-     */
-    private static Type getComparableGeneric(Class<?> clazz) {
-        Type[] objInterfaces = clazz.getGenericInterfaces();
-        for (Type objInterface : objInterfaces) {
-            if (objInterface instanceof ParameterizedType) {
-                ParameterizedType objParameterizedInterface = (ParameterizedType) objInterface;
-                if (objParameterizedInterface.getRawType().equals(Comparable.class)) {
-                    return objParameterizedInterface.getActualTypeArguments()[0];
-                }
-            }
-        }
-        if (clazz.getSuperclass() != null) {
-            return getComparableGeneric(clazz.getSuperclass());
+            @SuppressWarnings("unchecked")
+            Comparable<Object> objComparable = (Comparable<Object>) obj1;
+            return objComparable.compareTo(obj2);
         }
         return null;
     }
