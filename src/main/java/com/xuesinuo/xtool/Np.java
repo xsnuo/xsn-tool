@@ -1,5 +1,6 @@
 package com.xuesinuo.xtool;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -306,9 +307,31 @@ public class Np<T> {
     }
 
     /**
+     * 是否在目标集合中，和.eq()相同判断规则。
+     */
+    public boolean in(Collection<T> target) {
+        if (target == null) {
+            return false;
+        }
+        for (T itemObject : target) {
+            if (this.eq(itemObject)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 是否不在目标集合中，和.in()相反。
      */
     public boolean notIn(@SuppressWarnings("unchecked") T... target) {
+        return !this.in(target);
+    }
+
+    /**
+     * 是否在目标集合中，和.eq()相同判断规则。
+     */
+    public boolean notIn(Collection<T> target) {
         return !this.in(target);
     }
 
