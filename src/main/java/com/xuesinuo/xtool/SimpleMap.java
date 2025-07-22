@@ -4,10 +4,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 简单Map，基于HashMap，String做键，并方便初始化。
+ * 一个简易的，有序的，String做键的Map。可以方便的创建一个有序Map，尤其在临时创建一个JSON对象时，非常方便。
+ * <p>
+ * A simple, ordered, String key Map. It is very convenient to create an ordered Map, especially when creating a JSON object temporarily.
+ * <p>
+ * 实现方式：{@link LinkedHashMap}
+ * <p>
+ * Implementation method: {@link LinkedHashMap}
  * 
  * @author xuesinuo
- *
+ * @since 1.0.0
  */
 public class SimpleMap extends LinkedHashMap<String, Object> {
     private static final long serialVersionUID = 2887887422952950023L;

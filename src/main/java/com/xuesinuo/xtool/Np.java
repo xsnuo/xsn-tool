@@ -5,111 +5,24 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * 一个 Java8 Optional 类的简易版本。 推荐用在业务代码，而非框架代码中。
+ * 一个 Java8 Optional 类的简易版本。
  * <p>
- * 本类视为Optional的一个语法糖，并引入一些常用的小功能。意在简化空指针判断的同时，尽可能让取值、判断、比较等功能在一行代码中完成。使用简写作为方法名也是为了缩短代码长度，在连续调用时尽可能不让代码冗长。
- * </p>
- * 
+ * A simplified version of Java8 Optional class.
  * <p>
- * 一个最简单的例子：忽略空指针连续调用多级Getter获取嵌套的属性值：
- * </p>
- * 
- * <pre>
- * // e.g.0 基本用法
- * Np.i(MainPojo).x(x -> x.getChildPojo()).x(x -> x.getName()).o("Default Name");
- * </pre>
- * 
+ * 相比Optional，只保留了高频使用的赋值、取值、函数执行。
  * <p>
- * .eq()和.gt()、.lt()、.ge()、.le()。 .eq()是判断两个数值大小是否相等，不是简单的.equals()。.gt()等和.eq()使用了相同的判断规则：
- * </p>
- * 
- * <pre>
- * // e.g.1 数值比较
- * // 例如BigDecimal对象中不仅记录了数值，还记录了精度。.eq()只比较数值！
- * BigDecimal x = new BigDecimal("12");
- * BigDecimal y = new BigDecimal("12.0");
- * x.equals(y);// False
- * x.compareTo(y);// 0（表示数值相等）
- * Np.i(x).eq(y);// True，表示数值相等
- * </pre>
- * 
+ * Compared with Optional, only high-frequency used assignment, value acquisition, function execution are retained.
  * <p>
- * .and()和.or()构造一些简单的条件语句（复杂语句也可以构建，但可读性较差），单层and、or可以覆盖大多数场景。
- * </p>
- * 
- * <pre>
- * // e.g.2 and or
- * // 简单的并列条件
- * Double num = 10D;
- * Np.i(num).and(np -> np.ge(0D), np -> np.lt(100D));// 0（含）~100（不含）之间：True
- * Np.i(num).or(np -> np.lt(0D), np -> np.le(100D));// 0~100之外：False。当然，也可以用上句话取反
- * // 复杂的并列条件不建议用Np的.and()、.or()。下面是反例：
- * Np.i(num).or(np -> np.and(np2 -> np2.ge(0D), np2 -> np2.lt(10D)), np.and(np2 -> np2.ge(90D), np2 -> np2.lt(100D)));// 这么写可读性已经很差了：0~10或90~100
- * // 改进方案：
- * Np<Double> np = Np.i(num);// 这里可能经过了连续的取值调用，最终得到一个Np对象
- * if (np.ge(0D) && np.lt(10D) || np.ge(90D) && np.lt(100D)) {
- *     // ...
- * }
- * </pre>
- * 
+ * 还加入了{@link Comparable}的大小比较，字符的isBlank()等方法。
  * <p>
- * 关于遇到null时比较的特殊说明。
- * </p>
- * 
- * <pre>
- * // e.g.3 空
- * // null与null是相等的
- * Integer x = null;
- * Integer y = null;
- * Np.i(x).eq(y);// True
- * Np.i(x).gt(y);// False
- * Np.i(x).lt(y);// False
- * Np.i(x).ge(y);// True
- * Np.i(x).le(y);// True
- * </pre>
- * 
+ * Also added {@link Comparable} size comparison, character isBlank() methods, etc.
  * <p>
- * 非Comparable实现不要使用大小比较，可以使用.eq()。
- * </p>
- * 
- * <pre>
- * // e.g.4 对象比较
- * // 非实现Comparable接口的对象无法比较大小，建议不要调用gt、lt、ge、le
- * Pojo x = new Pojo();
- * Pojo y = new Pojo();
- * Np.i(x).eq(y);// 同x.equals(y)
- * Np.i(x).gt(y);// False
- * Np.i(x).lt(y);// False
- * Np.i(x).ge(y);// False：此时即使相等也认定为False，因为此类型不可比较
- * Np.i(x).le(y);// False：此时即使相等也认定为False，因为此类型不可比较
- * // 特殊情况：两个null依然为True
- * x = null;
- * y = null;
- * Np.i(x).ge(y);// True
- * Np.i(x).le(y);// True
- * </pre>
- * 
+ * Np尽可能压缩方法名长度，以减少代码行占用。
  * <p>
- * in 与 not in，范围取值。对每个值的判断标准依然遵循.eq()的判断方式。
- * </p>
- * <p>
- * 范围判断没有给Collection参数的，如果判断是否在Collection中，建议使用collection.stream()。这里只是提供一种固定的列举，而不是变量集合的判断。
- * </p>
+ * Np tries to compress the method name length to reduce code line usage.
  * 
- * <pre>
- * // e.g.5 范围判断
- * Integer state = service.getStateFromDatabase();
- * if (Np.i(state).in(null, 1, 3)) {
- *     // state值在空、1、3其中之一
- * }
- * if (Np.i(state).notIn(2, 3)) {
- *     // state值不在2、3其中
- * }
- * </pre>
- * 
- * @since 0.1.0
- * @version 1
  * @author xuesinuo
+ * @since 1.0.0
  */
 public class Np<T> {
     private Np() {}
@@ -118,6 +31,8 @@ public class Np<T> {
 
     /**
      * 输入一个值。
+     * <p>
+     * Input a value.
      */
     public static <T> Np<T> i(T t) {
         Np<T> np = new Np<T>();
@@ -127,6 +42,8 @@ public class Np<T> {
 
     /**
      * 执行一个函数。
+     * <p>
+     * Execute a function.
      */
     public Np<T> doo(Consumer<T> consumer) {
         if (this.t != null) {
@@ -137,6 +54,8 @@ public class Np<T> {
 
     /**
      * 多次重复执行一个函数。
+     * <p>
+     * Repeat execution of a function.
      */
     public Np<T> doo(Consumer<T> consumer, int repeat) {
         if (this.t != null) {
@@ -149,6 +68,8 @@ public class Np<T> {
 
     /**
      * 执行函数，并获得结果（连续调用）。
+     * <p>
+     * Execute a function and get the result (continuous call).
      */
     public <R> Np<R> x(Function<T, R> function) {
         Np<R> np = new Np<R>();
@@ -160,14 +81,16 @@ public class Np<T> {
     }
 
     /**
-     * 判断语句。T：保持原值；F：设置新值。
+     * 满足条件，则修改值，并继续Np操作。
+     * <p>
+     * If the condition is met, modify the value and continue Np operation.
      * 
      * <pre>
-     * // 模拟如下代码
-     * if (function == true) {
-     *     return this;
+     * // Ex:
+     * if (function_result == true) {
+     *     return els;
      * } else {
-     *     return other;
+     *     return this;
      * }
      * </pre>
      */
@@ -175,25 +98,18 @@ public class Np<T> {
         if (this.t != null) {
             Boolean r = function.apply(this.t);
             if (r != null && r == true) {
-                return this;
+                Np<T> np = new Np<T>();
+                np.t = els;
+                return np;
             }
         }
-        Np<T> np = new Np<T>();
-        np.t = els;
-        return np;
+        return this;
     }
 
     /**
-     * 如果为null，则设置一个默认值。
-     * 
-     * <pre>
-     * // 模拟如下代码
-     * if (this != null) {
-     *     return this;
-     * } else {
-     *     return def;
-     * }
-     * </pre>
+     * 如果为null，则设置一个默认值，并继续Np操作。
+     * <p>
+     * If it is null, set a default value and continue Np operation.
      */
     public Np<T> def(T def) {
         if (this.t == null) {
@@ -205,10 +121,12 @@ public class Np<T> {
     }
 
     /**
-     * 调用toString()后如果是null或空内容的字符串，则设置一个默认值。
+     * 如果字符串内容是空，则设置一个默认值，并继续Np操作。
+     * <p>
+     * If the string content is empty, set a default value and continue Np operation.
      */
     public Np<T> ifBlank(T def) {
-        if (this.t == null || this.t.toString() == null || this.t.toString().trim().equals("")) {
+        if (this.t == null || this.t.toString() == null || this.t.toString().trim().length() == 0) {
             Np<T> np = new Np<T>();
             np.t = def;
             return np;
@@ -217,7 +135,9 @@ public class Np<T> {
     }
 
     /**
-     * 输出
+     * 输出当前值。
+     * <p>
+     * Output the current value.
      */
     public T o() {
         return t;
@@ -225,6 +145,8 @@ public class Np<T> {
 
     /**
      * 输出，如果是null，则设置一个默认值。
+     * <p>
+     * Output, if it is null, set a default value.
      */
     public T o(T def) {
         if (t == null) {
@@ -235,6 +157,8 @@ public class Np<T> {
 
     /**
      * 是否为null。
+     * <p>
+     * Whether it is null.
      */
     public boolean isNull() {
         return t == null;
@@ -242,26 +166,29 @@ public class Np<T> {
 
     /**
      * 是否不为null。
+     * <p>
+     * Whether it is not null.
      */
     public boolean notNull() {
         return t != null;
     }
 
     /**
-     * 【注意！不是.equals()】看两个对象（x，y）“数值”是否相等！
+     * 判断两值是否相等，不仅是.equals()。
      * <p>
-     * 相比x.equals(y)增加了：两空值相等；x.compareTo(y)==0相等。
-     * </p>
-     * 
-     * <pre>
-     * // e.g.
-     * // BigDecimal对象中不仅记录了数值，还记录了精度。eq只比较数值
-     * BigDecimal x = new BigDecimal("12");
-     * BigDecimal y = new BigDecimal("12.0");
-     * x.equals(y); // F
-     * x.compareTo(y); // 0
-     * Np.i(x).eq(y); // T
-     * </pre>
+     * Judge whether the two values are equal, not only .equals().
+     * <p>
+     * NULL与NULL相等。
+     * <p>
+     * NULL is equals NULL.
+     * <p>
+     * 按.equals()判断对象是否相等。
+     * <p>
+     * Compare objects for equality by .equals().
+     * <p>
+     * 可比较类型（{@link Comparable}），按.compareTo()比较。
+     * <p>
+     * Comparable type ({@link Comparable}), compare by .compareTo().
      */
     public boolean eq(T target) {
         if (t == null && target == null) {
@@ -286,6 +213,8 @@ public class Np<T> {
 
     /**
      * 是否不相等，和.eq()相反。
+     * <p>
+     * Whether it is not equal, opposite to .eq().
      */
     public boolean notEq(T target) {
         return !this.eq(target);
@@ -293,6 +222,8 @@ public class Np<T> {
 
     /**
      * 是否在目标集合中，和.eq()相同判断规则。
+     * <p>
+     * Whether it is in the target collection, the same judgment rule as .eq().
      */
     public boolean in(@SuppressWarnings("unchecked") T... target) {
         if (target == null) {
@@ -308,6 +239,8 @@ public class Np<T> {
 
     /**
      * 是否在目标集合中，和.eq()相同判断规则。
+     * <p>
+     * Whether it is in the target collection, the same judgment rule as .eq().
      */
     public boolean in(Collection<T> target) {
         if (target == null) {
@@ -323,6 +256,8 @@ public class Np<T> {
 
     /**
      * 是否不在目标集合中，和.in()相反。
+     * <p>
+     * Whether it is not in the target collection, opposite to .in().
      */
     public boolean notIn(@SuppressWarnings("unchecked") T... target) {
         return !this.in(target);
@@ -330,6 +265,8 @@ public class Np<T> {
 
     /**
      * 是否在目标集合中，和.eq()相同判断规则。
+     * <p>
+     * Whether it is in the target collection, the same judgment rule as .eq().
      */
     public boolean notIn(Collection<T> target) {
         return !this.in(target);
@@ -337,6 +274,8 @@ public class Np<T> {
 
     /**
      * 是否大于（仅限可比较的类型）。
+     * <p>
+     * Whether it is greater than (only for comparable types).
      */
     public boolean gt(T target) {
         if (t == null) {
@@ -354,6 +293,8 @@ public class Np<T> {
 
     /**
      * 是否大于等于（仅限可比较的类型）。
+     * <p>
+     * Whether it is greater than or equal to (only for comparable types).
      */
     public boolean ge(T target) {
         if (t == null && target == null) {
@@ -374,6 +315,8 @@ public class Np<T> {
 
     /**
      * 是否小于（仅限可比较的类型）。
+     * <p>
+     * Whether it is less than (only for comparable types).
      */
     public boolean lt(T target) {
         if (t == null) {
@@ -391,6 +334,8 @@ public class Np<T> {
 
     /**
      * 是否小于等于（仅限可比较的类型）。
+     * <p>
+     * Whether it is less than or equal to (only for comparable types).
      */
     public boolean le(T target) {
         if (t == null && target == null) {
@@ -410,11 +355,13 @@ public class Np<T> {
     }
 
     /**
-     * 开关串行判断。 <b>注意：和&&一样会熔断</b>
-     * 
+     * 开关串行判断。
      * <p>
-     * 此处没有使用动态数组目的：1.消除泛型动态数组引起的警告；2.本意组织一些简单的判断条件，如果太复杂，不建议使用。
-     * </p>
+     * Switch serial judgment.
+     * <p>
+     * <b>注意：和&&一样会熔断</b>
+     * <p>
+     * <b>Note: It will be interrupted like &&.</b>
      */
     public boolean and(Function<Np<T>, Boolean> functionA, Function<Np<T>, Boolean> functionB) {
         Boolean a = functionA.apply(this);
@@ -429,11 +376,13 @@ public class Np<T> {
     }
 
     /**
-     * 开关并行判断。 <b>注意：和||一样会熔断</b>
-     * 
+     * 开关并行判断。
      * <p>
-     * 此处没有使用动态数组目的：1.消除泛型动态数组引起的警告；2.意组织一些简单的判断条件，如果太复杂，不建议使用。
-     * </p>
+     * Switch parallel judgment.
+     * <p>
+     * <b>注意：和||一样会熔断</b>
+     * <p>
+     * <b>Note: It will be interrupted like ||.</b>
      */
     public boolean or(Function<Np<T>, Boolean> functionA, Function<Np<T>, Boolean> functionB) {
         Boolean a = functionA.apply(this);
@@ -448,7 +397,9 @@ public class Np<T> {
     }
 
     /**
-     * 将Np内容进行toString；如果内容是null，则直接返回null。
+     * 将Np内容进行toString；如果是NULL，则直接返回NULL。
+     * <p>
+     * The Np content is converted to toString; if it is NULL, it is directly returned NULL.
      */
     public String toString() {
         if (t == null) {
@@ -458,7 +409,9 @@ public class Np<T> {
     }
 
     /**
-     * 将Np内容进行toString；如果内容是null，则设置默认值。
+     * 将Np内容进行toString；如果内容是NULL，则设置默认值。
+     * <p>
+     * The Np content is converted to toString; if the content is NULL, set the default value.
      */
     public String toString(String def) {
         if (t == null) {
@@ -467,9 +420,6 @@ public class Np<T> {
         return t.toString();
     }
 
-    /**
-     * 试图对Object调用Comparable的compareTo方法
-     */
     private static Integer compareTo(Object obj1, Object obj2) {
         if (obj1 instanceof Comparable<?> && obj2 instanceof Comparable<?>) {
             @SuppressWarnings("unchecked")
