@@ -6,12 +6,12 @@
 
   <groupId>com.xuesinuo</groupId>
   <artifactId>xtool</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>xtool</name>
   <description>xtool is a personal java tool.</description>
 
   <!-- 项目信息 -->
-  <url>https://gitee.com/xue_da_nuo/xsn-tool</url>
+  <url>https://github.com/xsnuo/xsn-tool</url>
   <organization>
     <name>xuesinuo</name>
     <url>https://www.xuesinuo.com</url>
@@ -32,7 +32,7 @@
       <id>xuesinuo</id>
       <name>xuesinuo</name>
       <email>nayukiminace@163.com</email>
-      <url>https://gitee.com/xue_da_nuo/xsn-tool</url>
+      <url>https://github.com/xsnuo/xsn-tool</url>
       <organization>xuesinuo</organization>
       <organizationUrl>https://www.xuesinuo.com</organizationUrl>
     </developer>
@@ -40,9 +40,9 @@
 
   <!-- SCM 配置 -->
   <scm>
-    <connection>scm:git:https://gitee.com/xue_da_nuo/xsn-tool.git</connection>
-    <developerConnection>scm:git:ssh://git@gitee.com:xue_da_nuo/xsn-tool.git</developerConnection>
-    <url>https://gitee.com/xue_da_nuo/xsn-tool</url>
+    <connection>scm:git:https://github.com/xsnuo/xsn-tool.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:xsnuo/xsn-tool.git</developerConnection>
+    <url>https://github.com/xsnuo/xsn-tool</url>
   </scm>
 
   <properties>
